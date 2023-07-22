@@ -61,7 +61,13 @@ class Board:
         self.alive_cell_coordinates.add(coordinates)
 
     def update_board(self):
-        for coordinates in self.alive_cell_coordinatescoordinates:
+        for coordinates in self.alive_cell_coordinates:
+            # check all 9 cells in block around live cell
+            check_cell(coordinates[0], coordinates[1])
+    
+    def check_cell(self,x, y):
+        # find alive_count around cell
+        pass
 
 
 
