@@ -1,3 +1,5 @@
+import time
+
 empty_board = [[0 * 10] * 10] * 10
 simple_glider = [
     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
@@ -101,19 +103,19 @@ class Board:
         if alive_count == 3: self.willLive.add(coordinates)
 
         def game_loop(self):
-            pass
-
+            self.update_board()
+            self.print_board()
+            for coordinates in self.willDie:
+                self.board[coordinates[1], coordinates[0]] = 0
+            for coordinates in self.willLive:
+                self.board[coordinates[1], coordinates[0]] = 1
+            time.sleep(1)
+            self.game_loop()
+    
+        def start_game(self):
+            self.find_initial_alive()
+            self.game_loop()
 
 
 
 myBoard = Board(simple_glider)
-myBoard.print_board()
-myBoard.find_initial_alive()
-print(myBoard.alive_cell_coordinates)
-myBoard.make_dead((8, 0))
-myBoard.print_board()
-print(myBoard.alive_cell_coordinates)
-myBoard.make_alive((8, 0))
-myBoard.make_alive((8, 0))
-print(myBoard.alive_cell_coordinates)
-myBoard.print_board()
