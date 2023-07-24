@@ -41,6 +41,8 @@ class Board:
     def __init__(self, board):
         self.board = board
         self.alive_cell_coordinates = set()
+        self.willDie = set()
+        self.willLive = set()
 
     def print_board(self):
         for row in self.board:
@@ -63,12 +65,43 @@ class Board:
     def update_board(self):
         for coordinates in self.alive_cell_coordinates:
             # check all 9 cells in block around live cell
-            check_cell(coordinates[0], coordinates[1])
+            self.check_cell([coordinates[-1], coordinates[-1]])
+            self.check_cell([coordinates[-1], coordinates[0]])
+            self.check_cell([coordinates[-1], coordinates[1]])
+            self.check_cell([coordinates[0], coordinates[-1]])
+            self.check_cell([coordinates[0], coordinates[0]])
+            self.check_cell([coordinates[0], coordinates[1]])
+            self.check_cell([coordinates[1], coordinates[-1]])
+            self.check_cell([coordinates[1], coordinates[0]])
+            self.check_cell([coordinates[1], coordinates[1]])
     
-    def check_cell(self,x, y):
+    def check_cell(self, coordinates):
         # find alive_count around cell
-        pass
+        alive_count = 0
+        if self.board[coordinates[1]-1, coordinates[0]]-1:
+            alive_count += 1
+        if self.board[coordinates[1]-1, coordinates[0]]:
+            alive_count += 1
+        if self.board[coordinates[1]-1, coordinates[0]]+1:
+            alive_count += 1
+        if self.board[coordinates[1], coordinates[0]]-1:
+            alive_count += 1
+        if self.board[coordinates[1], coordinates[0]]:
+            alive_count += 1
+        if self.board[coordinates[1], coordinates[0]]+1:
+            alive_count += 1
+        if self.board[coordinates[1]+1, coordinates[0]]-1:
+            alive_count += 1
+        if self.board[coordinates[1]+1, coordinates[0]]:
+            alive_count += 1
+        if self.board[coordinates[1]+1, coordinates[0]]+1:
+            alive_count += 1
+        # add cells to sets to update at resolution of move
+        if alive_count < 2 or alive_count > 3: self.willDie.add(coordinates)
+        if alive_count == 3: self.willLive.add(coordinates)
 
+        def game_loop(self):
+            pass
 
 
 
@@ -84,4 +117,3 @@ myBoard.make_alive((8, 0))
 myBoard.make_alive((8, 0))
 print(myBoard.alive_cell_coordinates)
 myBoard.print_board()
-
