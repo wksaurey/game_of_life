@@ -1,6 +1,18 @@
 import time
 
 empty_board = [[0 * 10] * 10] * 10
+simple_repeater = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    ]
 simple_glider = [
     [0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
     [0, 0, 0, 0, 0, 0, 0, 1, 0, 0],
@@ -49,6 +61,7 @@ class Board:
     def print_board(self):
         for row in self.board:
             print(row)
+        print('------------------------------')
 
     def find_initial_alive(self):
         for rowIndex, row in enumerate(self.board):
@@ -66,56 +79,46 @@ class Board:
 
     def update_board(self):
         for coordinates in self.alive_cell_coordinates:
-            # check all 9 cells in block around live cell
-            self.check_cell([coordinates[-1], coordinates[-1]])
-            self.check_cell([coordinates[-1], coordinates[0]])
-            self.check_cell([coordinates[-1], coordinates[1]])
-            self.check_cell([coordinates[0], coordinates[-1]])
-            self.check_cell([coordinates[0], coordinates[0]])
-            self.check_cell([coordinates[0], coordinates[1]])
-            self.check_cell([coordinates[1], coordinates[-1]])
-            self.check_cell([coordinates[1], coordinates[0]])
-            self.check_cell([coordinates[1], coordinates[1]])
+            # check all 9 cells in block around live cell (including live cell)
+            for x in range(coordinates[0]-1, coordinates[0]+2):
+                for y in range(coordinates[1]-1, coordinates[1]+2):
+                    x = min(max(x, 0), 9)
+                    y = min(max(y, 0), 9)
+                    self.check_cell([x, y])
     
     def check_cell(self, coordinates):
-        # find alive_count around cell
+        # find alive_count around cell (don't include the cell itself)
         alive_count = 0
-        if self.board[coordinates[1]-1, coordinates[0]]-1:
-            alive_count += 1
-        if self.board[coordinates[1]-1, coordinates[0]]:
-            alive_count += 1
-        if self.board[coordinates[1]-1, coordinates[0]]+1:
-            alive_count += 1
-        if self.board[coordinates[1], coordinates[0]]-1:
-            alive_count += 1
-        if self.board[coordinates[1], coordinates[0]]:
-            alive_count += 1
-        if self.board[coordinates[1], coordinates[0]]+1:
-            alive_count += 1
-        if self.board[coordinates[1]+1, coordinates[0]]-1:
-            alive_count += 1
-        if self.board[coordinates[1]+1, coordinates[0]]:
-            alive_count += 1
-        if self.board[coordinates[1]+1, coordinates[0]]+1:
-            alive_count += 1
+        for x in range(coordinates[0]-1, coordinates[0]+2):
+            for y in range(coordinates[1]-1, coordinates[1]+2):
+                if x == coordinates[0] and y == coordinates[1]:
+                    continue  # Skip the current cell itself
+                x = min(max(x, 0), 9)
+                y = min(max(y, 0), 9)
+                a = self.board[y][x]
+                if self.board[y][x]:
+                    alive_count += 1
         # add cells to sets to update at resolution of move
-        if alive_count < 2 or alive_count > 3: self.willDie.add(coordinates)
-        if alive_count == 3: self.willLive.add(coordinates)
+        if alive_count < 2 or alive_count > 3: self.willDie.add(tuple(coordinates))
+        if alive_count == 3: self.willLive.add(tuple(coordinates))
 
-        def game_loop(self):
-            self.update_board()
-            self.print_board()
-            for coordinates in self.willDie:
-                self.board[coordinates[1], coordinates[0]] = 0
-            for coordinates in self.willLive:
-                self.board[coordinates[1], coordinates[0]] = 1
-            time.sleep(1)
-            self.game_loop()
-    
-        def start_game(self):
-            self.find_initial_alive()
-            self.game_loop()
+    def game_loop(self):
+        self.update_board()
+        self.print_board()
+        for coordinates in self.willDie:
+            self.board[coordinates[1]][coordinates[0]] = 0
+        for coordinates in self.willLive:
+            self.board[coordinates[1]][coordinates[0]] = 1
+        time.sleep(1)
+        self.willDie = set()
+        self.willLive = set()
+        self.game_loop()
+
+    def start_game(self):
+        self.find_initial_alive()
+        self.game_loop()
 
 
 
-myBoard = Board(simple_glider)
+myBoard = Board(rocket)
+myBoard.start_game()
