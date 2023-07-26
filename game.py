@@ -37,6 +37,28 @@ loaf_pattern = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     ]
+big_loaf_pattern = [
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    ]
 rocket = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -53,6 +75,7 @@ rocket = [
 class Board:
 
     def __init__(self, board):
+        self.size = len(board)
         self.board = board
         self.alive_cell_coordinates = set()
         self.willDie = set()
@@ -60,8 +83,14 @@ class Board:
 
     def print_board(self):
         for row in self.board:
-            print(row)
-        print('------------------------------')
+            for num in row:
+                if num == 0:
+                    output = 'O'
+                else: 
+                    output = '*'
+                print(output, end=' ')
+            print()
+        print('-' * self.size * 3, end=None)
 
     def find_initial_alive(self):
         for rowIndex, row in enumerate(self.board):
@@ -71,7 +100,8 @@ class Board:
 
     def make_dead(self, coordinates):
             self.board[coordinates[1]][coordinates[0]] = 0
-            self.alive_cell_coordinates.remove(coordinates)
+            if(coordinates in self.alive_cell_coordinates):
+                self.alive_cell_coordinates.remove(coordinates)
 
     def make_alive(self, coordinates):
         self.board[coordinates[1]][coordinates[0]] = 1 # 1 == true, 0 == false, self.board[y][x]
@@ -82,8 +112,8 @@ class Board:
             # check all 9 cells in block around live cell (including live cell)
             for x in range(coordinates[0]-1, coordinates[0]+2):
                 for y in range(coordinates[1]-1, coordinates[1]+2):
-                    x = min(max(x, 0), 9)
-                    y = min(max(y, 0), 9)
+                    if x < 0 or x >= self.size or y < 0 or y >= self.size:
+                        continue
                     self.check_cell([x, y])
     
     def check_cell(self, coordinates):
@@ -93,8 +123,8 @@ class Board:
             for y in range(coordinates[1]-1, coordinates[1]+2):
                 if x == coordinates[0] and y == coordinates[1]:
                     continue  # Skip the current cell itself
-                x = min(max(x, 0), 9)
-                y = min(max(y, 0), 9)
+                if x < 0 or x >= self.size or y < 0 or y >= self.size:
+                    continue
                 a = self.board[y][x]
                 if self.board[y][x]:
                     alive_count += 1
@@ -106,9 +136,9 @@ class Board:
         self.update_board()
         self.print_board()
         for coordinates in self.willDie:
-            self.board[coordinates[1]][coordinates[0]] = 0
+            self.make_dead(coordinates)
         for coordinates in self.willLive:
-            self.board[coordinates[1]][coordinates[0]] = 1
+            self.make_alive(coordinates)
         time.sleep(1)
         self.willDie = set()
         self.willLive = set()
@@ -120,5 +150,5 @@ class Board:
 
 
 
-myBoard = Board(rocket)
+myBoard = Board(big_loaf_pattern)
 myBoard.start_game()
